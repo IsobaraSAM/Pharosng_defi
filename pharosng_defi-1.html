@@ -1,0 +1,1735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PharosNG — DeFi for Nigeria</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Cabinet+Grotesk:wght@400;500;700;800;900&family=Epilogue:wght@300;400;500;600;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    /* ═══════════════════════════════════════════
+       TOKENS — Lagos Sunset: deep forest + ochre + ember
+    ═══════════════════════════════════════════ */
+    :root {
+      --bg:    #0b0e08;
+      --s1:    #111408;
+      --s2:    #181c0f;
+      --s3:    #1f2414;
+      --s4:    #272d1a;
+
+      --ink:   #f0ead8;
+      --ink2:  #b8ae92;
+      --ink3:  #6e6a52;
+
+      /* primary — deep forest green */
+      --gr:    #2d6a4f;
+      --gr2:   #3a8463;
+      --gr3:   rgba(45,106,79,0.14);
+      --grbdr: 1px solid rgba(45,106,79,0.28);
+
+      /* accent — warm ochre/amber */
+      --oc:    #d4831a;
+      --oc2:   #e8992a;
+      --oc3:   rgba(212,131,26,0.12);
+
+      /* fire — ember red for emphasis */
+      --em:    #c0392b;
+      --em2:   #e74c3c;
+
+      /* naira green */
+      --ng:    #008751;
+      --ng2:   rgba(0,135,81,0.15);
+
+      --rule:  rgba(240,234,216,0.07);
+      --rule2: rgba(240,234,216,0.04);
+      --r:     10px;
+      --t:     0.18s ease;
+    }
+
+    *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+    html { scroll-behavior:smooth; }
+
+    body {
+      font-family:'Epilogue', system-ui, sans-serif;
+      background:var(--bg);
+      color:var(--ink);
+      min-height:100vh;
+      overflow-x:hidden;
+    }
+
+    /* grain texture */
+    body::before {
+      content:''; position:fixed; inset:0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events:none; z-index:9999; opacity:0.5;
+    }
+
+    /* ambient warmth */
+    body::after {
+      content:''; position:fixed; inset:0;
+      background:
+        radial-gradient(ellipse 50% 40% at 0% 0%,   rgba(45,106,79,0.08) 0%, transparent 65%),
+        radial-gradient(ellipse 40% 30% at 100% 100%,rgba(212,131,26,0.07) 0%, transparent 65%);
+      pointer-events:none; z-index:0;
+    }
+
+    .wrap {
+      position:relative; z-index:1;
+      width:min(1380px, 100%);
+      margin:0 auto;
+      padding:16px 20px 40px;
+      display:flex; flex-direction:column; gap:2px;
+    }
+
+    /* ═══════════════════════════════════════════
+       TOPBAR
+    ═══════════════════════════════════════════ */
+    .topbar {
+      display:flex; justify-content:space-between;
+      align-items:center; gap:12px; flex-wrap:wrap;
+      background:var(--s1); border:1px solid var(--rule);
+      border-radius:14px; padding:14px 22px;
+      margin-bottom:14px;
+    }
+
+    .brand { display:flex; align-items:center; gap:12px; }
+
+    .brand-icon {
+      width:40px; height:40px; border-radius:10px;
+      background:var(--gr); display:flex;
+      align-items:center; justify-content:center;
+      font-size:20px;
+      box-shadow:0 0 16px rgba(45,106,79,0.4);
+    }
+
+    .brand-name {
+      font-family:'Cabinet Grotesk', sans-serif;
+      font-size:18px; font-weight:900;
+      letter-spacing:-0.04em;
+    }
+
+    .brand-name span { color:var(--oc); }
+
+    .brand-tag {
+      font-family:'DM Mono', monospace; font-size:10px;
+      color:var(--ink3); letter-spacing:0.1em;
+      text-transform:uppercase; margin-top:2px;
+    }
+
+    .top-right { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+
+    .pill {
+      font-family:'DM Mono', monospace; font-size:10px;
+      font-weight:500; padding:6px 13px;
+      border-radius:999px; border:1px solid var(--rule);
+      color:var(--ink3); letter-spacing:0.06em;
+    }
+
+    .pill.live {
+      color:var(--ng); border-color:rgba(0,135,81,0.3);
+      background:rgba(0,135,81,0.08);
+      display:flex; align-items:center; gap:6px;
+    }
+
+    .live-dot {
+      width:5px; height:5px; border-radius:50%;
+      background:var(--ng); box-shadow:0 0 6px var(--ng);
+      animation:blink 2s ease-in-out infinite;
+    }
+
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+    .pill.ng {
+      color:var(--oc); border-color:rgba(212,131,26,0.3);
+      background:var(--oc3);
+    }
+
+    /* ═══════════════════════════════════════════
+       HERO — split editorial layout
+    ═══════════════════════════════════════════ */
+    .hero {
+      display:grid; grid-template-columns:1fr 380px;
+      border:1px solid var(--rule); border-radius:16px;
+      overflow:hidden; min-height:500px;
+    }
+
+    .hero-left {
+      padding:44px 40px;
+      background:var(--s1);
+      display:flex; flex-direction:column; justify-content:space-between;
+      border-right:1px solid var(--rule);
+    }
+
+    .eyebrow {
+      display:inline-flex; align-items:center; gap:8px;
+      font-family:'DM Mono', monospace; font-size:10px;
+      font-weight:500; text-transform:uppercase;
+      letter-spacing:0.16em; color:var(--gr2);
+      margin-bottom:20px;
+    }
+
+    .eyebrow::before {
+      content:''; width:20px; height:2px; background:var(--gr2);
+    }
+
+    h1 {
+      font-family:'Cabinet Grotesk', sans-serif;
+      font-size:clamp(52px, 6.5vw, 96px);
+      font-weight:900; line-height:0.88;
+      letter-spacing:-0.05em;
+    }
+
+    h1 em { font-style:normal; color:var(--oc); }
+    h1 .dim { color:var(--ink3); }
+
+    .hero-desc {
+      margin-top:22px; font-size:15.5px;
+      line-height:1.85; color:var(--ink2);
+      max-width:580px; font-weight:400;
+    }
+
+    .flag-strip {
+      display:flex; align-items:center; gap:10px;
+      margin-top:28px; padding:14px 18px;
+      background:var(--ng2); border:1px solid rgba(0,135,81,0.22);
+      border-radius:10px;
+    }
+
+    .flag-icon { font-size:22px; }
+
+    .flag-text {
+      font-family:'DM Mono', monospace; font-size:11px;
+      color:var(--ng); font-weight:500; letter-spacing:0.06em;
+    }
+
+    .hero-strip {
+      display:grid; grid-template-columns:repeat(3,1fr);
+      border-top:1px solid var(--rule); margin-top:32px;
+      background:var(--rule); gap:1px;
+    }
+
+    .hs-item {
+      padding:18px 0; background:var(--s1); padding-right:16px;
+    }
+
+    .hs-item:not(:first-child) { padding-left:16px; }
+
+    .hs-num {
+      font-family:'Cabinet Grotesk', sans-serif;
+      font-size:30px; font-weight:900;
+      letter-spacing:-0.05em; color:var(--oc);
+      line-height:1; margin-bottom:4px;
+    }
+
+    .hs-lbl {
+      font-size:10px; font-weight:600;
+      color:var(--ink3); text-transform:uppercase;
+      letter-spacing:0.1em;
+    }
+
+    /* Hero right — stacked cards */
+    .hero-right { display:flex; flex-direction:column; }
+
+    .hr-card {
+      flex:1; padding:26px 24px;
+      border-bottom:1px solid var(--rule);
+      display:flex; flex-direction:column; justify-content:space-between;
+    }
+
+    .hr-card:last-child { border-bottom:none; }
+
+    .hr-card.accent { background:var(--gr); }
+    .hr-card.accent .hr-label { color:rgba(255,255,255,0.45); }
+    .hr-card.accent h3 { color:#fff; }
+    .hr-card.accent p  { color:rgba(255,255,255,0.65); }
+
+    .hr-label {
+      font-family:'DM Mono', monospace; font-size:9px;
+      letter-spacing:0.18em; text-transform:uppercase;
+      font-weight:500; color:var(--gr2); margin-bottom:10px;
+    }
+
+    .hr-card h3 {
+      font-family:'Cabinet Grotesk', sans-serif;
+      font-size:18px; font-weight:800;
+      letter-spacing:-0.02em; line-height:1.2; margin-bottom:8px;
+    }
+
+    .hr-card p { font-size:12.5px; color:var(--ink2); line-height:1.7; }
+
+    /* ═══════════════════════════════════════════
+       WHY NIGERIA BANNER (hero feature)
+    ═══════════════════════════════════════════ */
+    .ng-banner {
+      background:var(--s1); border:1px solid var(--rule);
+      border-radius:14px; padding:0; overflow:hidden;
+      display:grid; grid-template-columns:1fr 1fr;
+    }
+
+    .ng-left {
+      padding:36px 36px;
+      border-right:1px solid var(--rule);
+    }
+
+    .ng-left h2 {
+      font-family:'Cabinet Grotesk', sans-serif;
+      font-size:32px; font-weight:900;
+      letter-spacing:-0.04em; line-height:1.1;
+      margin:10px 0 14px;
+    }
+
+    .ng-left h2 em { font-style:normal; color:var(--oc); }
+
+    .ng-left p {
+      font-size:14px; color:var(--ink2);
+      line-height:1.85; margin-bottom:20px;
+    }
+
+    .ng-stats {
+      display:grid; grid-template-columns:repeat(2,1fr); gap:10px;
+    }
+
+    .ng-stat {
+      padding:16px; background:var(--s2);
+      border:1px solid var(--rule); border-radius:10px;
+    }
+
+    .ng-stat-num {
+      font-family:'Cabinet Grotesk', sans-serif;
+      font-size:24px; font-weight:900;
+      letter-spacing:-0.04em; color:var(--oc);
+      line-height:1; margin-bottom:4px;
+    }
+
+    .ng-stat-lbl {
+      font-size:10px; color:var(--ink3); font-weight:600;
+      text-transform:uppercase; letter-spacing:0.1em;
+    }
+
+    .ng-right { padding:36px; display:flex; flex-direction:column; gap:14px; }
+
+    .ng-card {
+      padding:16px 18px; background:var(--s2);
+      border:1px solid var(--rule); border-radius:10px;
+      display:flex; gap:14px; align-items:flex-start;
+      transition:border-color var(--t);
+    }
+
+    .ng-card:hover { border-color:rgba(45,106,79,0.3); }
+
+    .ng-card-icon {
+      font-size:20px; flex-shrink:0; width:36px;
+      height:36px; display:flex; align-items:center;
+      justify-content:center; background:var(--s3);
+      border:1px solid var(--rule); border-radius:8px;
+    }
+
+    .ng-card h4 {
+      font-family:'Cabinet Grotesk', sans-serif;
+      font-size:14px; font-weight:800;
+      letter-spacing:-0.02em; margin-bottom:4px;
+    }
+
+    .ng-card p { font-size:12px; color:var(--ink3); line-height:1.65; }
+
+    /* ═══════════════════════════════════════════
+       STAT ROW
+    ═══════════════════════════════════════════ */
+    .stats-row {
+      display:grid; grid-template-columns:repeat(4,1fr);
+      border:1px solid var(--rule); border-radius:14px;
+      overflow:hidden; background:var(--rule); gap:1px;
+    }
+
+    .stat-cell {
+      padding:24px 22px; background:var(--s1);
+      transition:background var(--t);
+    }
+
+    .stat-cell:hover { background:var(--s2); }
+
+    .stat-num {
+      font-family:'Cabinet Grotesk', sans-serif;
+      font-size:38px; font-weight:900;
+      letter-spacing:-0.06em; line-height:1; margin-bottom:6px;
+    }
+
+    .stat-num.gr  { color:var(--gr2); }
+    .stat-num.oc  { color:var(--oc); }
+    .stat-num.em  { color:var(--em2); }
+    .stat-num.ng  { color:var(--ng); }
+
+    .stat-lbl {
+      font-size:10px; font-weight:600; color:var(--ink3);
+      text-transform:uppercase; letter-spacing:0.1em;
+    }
+
+    /* ═══════════════════════════════════════════
+       NETWORK PULSE
+    ═══════════════════════════════════════════ */
+    .pulse-wrap {
+      border:1px solid var(--rule); border-radius:14px;
+      overflow:hidden; background:var(--s1);
+    }
+
+    .pulse-head {
+      padding:24px 26px 0;
+      display:flex; justify-content:space-between;
+      align-items:flex-start; flex-wrap:wrap; gap:12px;
+    }
+
+    .section-eyebrow {
+      font-family:'DM Mono', monospace; font-size:9px;
+      font-weight:500; letter-spacing:0.18em;
+      text-transform:uppercase; color:var(--gr2);
+      margin-bottom:6px;
+      display:flex; align-items:center; gap:7px;
+    }
+
+    .section-eyebrow::before { content:''; width:12px; height:1.5px; background:var(--gr2); }
+
+    h2 {
+      font-family:'Cabinet Grotesk', sans-serif;
+      font-size:24px; font-weight:900;
+      letter-spacing:-0.04em; margin-bottom:4px;
+    }
+
+    .sub { font-size:13px; color:var(--ink3); line-height:1.65; }
+
+    .status-pill {
+      font-family:'DM Mono', monospace; font-size:10px;
+      font-weight:500; padding:6px 14px;
+      border-radius:999px; letter-spacing:0.08em;
+      align-self:flex-start; margin-top:4px;
+    }
+
+    .sp-wait { background:rgba(110,106,82,0.15); border:1px solid var(--rule);    color:var(--ink3); }
+    .sp-ok   { background:rgba(0,135,81,0.08);   border:1px solid rgba(0,135,81,0.22); color:var(--ng); }
+    .sp-err  { background:rgba(192,57,43,0.1);   border:1px solid rgba(192,57,43,0.25); color:var(--em2); }
+
+    .metrics-grid {
+      display:grid; grid-template-columns:repeat(4,1fr);
+      border-top:1px solid var(--rule); margin-top:18px;
+      background:var(--rule); gap:1px;
+    }
+
+    .metric-cell {
+      padding:20px 22px; background:var(--s1);
+      transition:background var(--t);
+    }
+
+    .metric-cell:hover { background:var(--s2); }
+
+    .m-label {
+      font-family:'DM Mono', monospace; font-size:9px;
+      font-weight:500; text-transform:uppercase;
+      letter-spacing:0.14em; color:var(--ink3); margin-bottom:10px;
+    }
+
+    .m-val {
+      font-family:'Cabinet Grotesk', sans-serif;
+      font-size:28px; font-weight:900;
+      letter-spacing:-0.04em; line-height:1;
+      color:var(--gr2); margin-bottom:8px;
+    }
+
+    .m-val.loading {
+      color:var(--ink3); font-size:18px;
+      font-family:'DM Mono', monospace; font-weight:400;
+      animation:blink 1.5s infinite;
+    }
+
+    .m-meta { font-family:'DM Mono', monospace; font-size:10.5px; color:var(--ink3); }
+
+    .pulse-foot {
+      display:flex; justify-content:space-between; gap:10px;
+      flex-wrap:wrap; padding:12px 26px;
+      border-top:1px solid var(--rule);
+      font-family:'DM Mono', monospace; font-size:10px; color:var(--ink3);
+    }
+
+    /* ═══════════════════════════════════════════
+       2-COL LAYOUT
+    ═══════════════════════════════════════════ */
+    .grid2 {
+      display:grid; grid-template-columns:1fr 1fr; gap:2px;
+    }
+
+    .grid3 {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:2px;
+    }
+
+    .panel {
+      background:var(--s1); border:1px solid var(--rule);
+      border-radius:14px; padding:28px 26px;
+    }
+
+    /* ═══════════════════════════════════════════
+       TERMINAL
+    ═══════════════════════════════════════════ */
+    .terminal {
+      background:#070a05; border:1px solid var(--rule);
+      border-radius:14px; overflow:hidden;
+    }
+
+    .term-bar {
+      display:flex; align-items:center; gap:7px;
+      padding:11px 16px; background:var(--s2);
+      border-bottom:1px solid var(--rule);
+    }
+
+    .tdot      { width:9px; height:9px; border-radius:50%; }
+    .tdot-r    { background:#c84040; }
+    .tdot-a    { background:#c8952a; }
+    .tdot-g    { background:#3da069; }
+
+    .term-name {
+      margin-left:8px; font-family:'DM Mono', monospace;
+      font-size:10px; color:var(--ink3); letter-spacing:0.08em;
+    }
+
+    .term-body {
+      padding:18px 20px; font-family:'DM Mono', monospace;
+      font-size:11.5px; line-height:2; min-height:220px;
+      white-space:pre-wrap;
+    }
+
+    .tg  { color:var(--gr2); }
+    .to  { color:var(--oc);  }
+    .tw  { color:var(--ink); }
+    .td  { color:var(--ink3); }
+    .tr  { color:var(--em2); font-weight:600; }
+    .tng { color:var(--ng);  font-weight:600; }
+
+    /* ═══════════════════════════════════════════
+       USE CASES — Nigeria specific
+    ═══════════════════════════════════════════ */
+    .usecase-grid {
+      display:grid; grid-template-columns:repeat(3,1fr);
+      gap:12px; margin-top:14px;
+    }
+
+    .usecase-card {
+      background:var(--s2); border:1px solid var(--rule);
+      border-radius:12px; padding:20px 18px;
+      transition:border-color var(--t), transform var(--t);
+    }
+
+    .usecase-card:hover {
+      border-color:rgba(45,106,79,0.3);
+      transform:translateY(-2px);
+    }
+
+    .uc-icon {
+      font-size:22px; margin-bottom:12px;
+      display:block;
+    }
+
+    .uc-title {
+      font-family:'Cabinet Grotesk', sans-serif;
+      font-size:15px; font-weight:800;
+      letter-spacing:-0.02em; margin-bottom:6px;
+    }
+
+    .uc-desc { font-size:12.5px; color:var(--ink3); line-height:1.7; }
+
+    .uc-tag {
+      display:inline-block; margin-top:10px;
+      font-family:'DM Mono', monospace; font-size:9px;
+      font-weight:500; text-transform:uppercase;
+      letter-spacing:0.1em; padding:4px 10px;
+      border-radius:4px;
+    }
+
+    .tag-gr { background:var(--gr3); color:var(--gr2); border:var(--grbdr); }
+    .tag-oc { background:var(--oc3); color:var(--oc);  border:1px solid rgba(212,131,26,0.28); }
+    .tag-ng { background:var(--ng2); color:var(--ng);  border:1px solid rgba(0,135,81,0.25); }
+    .tag-em { background:rgba(192,57,43,0.1); color:var(--em2); border:1px solid rgba(192,57,43,0.25); }
+
+    /* ═══════════════════════════════════════════
+       TOOLS (wallet-free)
+    ═══════════════════════════════════════════ */
+    .tools-banner {
+      background:var(--gr); border:1px solid var(--gr);
+      border-radius:14px; padding:24px 28px;
+      display:flex; justify-content:space-between;
+      align-items:center; gap:20px; flex-wrap:wrap;
+      position:relative; overflow:hidden;
+    }
+
+    .tools-banner::after {
+      content:''; position:absolute;
+      right:-60px; top:-60px; width:250px; height:250px;
+      border-radius:50%; background:rgba(255,255,255,0.04);
+      pointer-events:none;
+    }
+
+    .tools-banner h2 { color:#fff; }
+    .tools-banner p  { font-size:13px; color:rgba(255,255,255,0.65); margin-top:4px; }
+    .tb-count {
+      font-family:'Cabinet Grotesk', sans-serif;
+      font-size:80px; font-weight:900; letter-spacing:-0.07em;
+      color:rgba(0,0,0,0.15); line-height:1;
+    }
+
+    .tool-block {
+      background:var(--s1); border:1px solid var(--rule);
+      border-radius:14px; padding:24px;
+      display:flex; flex-direction:column; gap:14px;
+    }
+
+    .tool-head {
+      display:flex; justify-content:space-between;
+      align-items:flex-start; gap:10px;
+    }
+
+    .tool-icon-row { display:flex; align-items:center; gap:10px; }
+
+    .tool-icon {
+      width:34px; height:34px; border-radius:8px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:16px; flex-shrink:0;
+      border:1px solid var(--rule); background:var(--s2);
+    }
+
+    .tool-name {
+      font-family:'Cabinet Grotesk', sans-serif;
+      font-size:14.5px; font-weight:800; letter-spacing:-0.02em;
+    }
+
+    .tool-badge {
+      font-family:'DM Mono', monospace; font-size:9px;
+      font-weight:500; letter-spacing:0.1em; text-transform:uppercase;
+      padding:4px 10px; border-radius:4px;
+    }
+
+    .tool-desc { font-size:12.5px; color:var(--ink3); line-height:1.65; }
+
+    /* ═══════════════════════════════════════════
+       FORM ELEMENTS
+    ═══════════════════════════════════════════ */
+    .row { display:flex; gap:8px; flex-wrap:wrap; }
+    .col { display:flex; flex-direction:column; gap:8px; }
+
+    input[type=text], input[type=number], select {
+      flex:1; min-width:0;
+      background:var(--s2); border:1px solid var(--rule);
+      border-radius:8px; padding:9px 13px;
+      font-family:'DM Mono', monospace; font-size:11.5px;
+      color:var(--ink); outline:none;
+      transition:border-color var(--t);
+    }
+
+    input:focus, select:focus { border-color:rgba(45,106,79,0.4); }
+    input::placeholder { color:var(--ink3); }
+    select option { background:var(--s2); color:var(--ink); }
+
+    .btn {
+      border:none; border-radius:8px; padding:9px 16px;
+      font-family:'Epilogue', sans-serif; font-size:12px;
+      font-weight:700; cursor:pointer; transition:var(--t);
+      white-space:nowrap;
+    }
+
+    .btn-gr { background:var(--gr);  color:#fff; }
+    .btn-gr:hover { background:var(--gr2); transform:translateY(-1px); box-shadow:0 4px 14px rgba(45,106,79,0.35); }
+    .btn-oc { background:var(--oc);  color:#000; }
+    .btn-oc:hover { background:var(--oc2); transform:translateY(-1px); }
+    .btn-ng { background:var(--ng);  color:#fff; }
+    .btn-ng:hover { opacity:0.85; transform:translateY(-1px); }
+    .btn-gh { background:var(--s2); color:var(--ink2); border:1px solid var(--rule); }
+    .btn-gh:hover { border-color:rgba(45,106,79,0.35); transform:translateY(-1px); }
+
+    /* ═══════════════════════════════════════════
+       OUTPUT
+    ═══════════════════════════════════════════ */
+    .out {
+      background:var(--s2); border:1px solid var(--rule);
+      border-radius:8px; padding:12px 14px;
+      font-family:'DM Mono', monospace; font-size:11.5px;
+      line-height:1.9; min-height:72px; position:relative;
+    }
+
+    .ok  { color:var(--ng); }
+    .val { color:var(--oc); font-weight:600; }
+    .key { color:var(--ink3); }
+    .err { color:var(--em2); }
+    .dim { color:var(--ink3); font-style:italic; animation:blink 1.5s infinite; }
+
+    .copy-btn {
+      position:absolute; top:8px; right:8px;
+      background:var(--s3); border:1px solid var(--rule);
+      border-radius:4px; padding:3px 8px;
+      font-family:'DM Mono', monospace; font-size:9px;
+      color:var(--ink3); cursor:pointer; transition:var(--t); opacity:0;
+    }
+
+    .out:hover .copy-btn { opacity:1; }
+    .copy-btn:hover { color:var(--oc); border-color:rgba(212,131,26,0.3); }
+
+    /* ═══════════════════════════════════════════
+       NGN CONVERTER (special tool)
+    ═══════════════════════════════════════════ */
+    .ngn-row {
+      display:grid; grid-template-columns:64px 1fr;
+      align-items:center; gap:10px; margin-bottom:6px;
+    }
+
+    .ngn-lbl {
+      font-family:'DM Mono', monospace; font-size:10px;
+      font-weight:500; text-transform:uppercase; letter-spacing:0.1em;
+    }
+
+    /* ═══════════════════════════════════════════
+       STAKING
+    ═══════════════════════════════════════════ */
+    .stk-grid {
+      display:grid; grid-template-columns:repeat(3,1fr);
+      gap:1px; background:var(--rule);
+      border:1px solid var(--rule); border-radius:8px; overflow:hidden;
+    }
+
+    .stk-cell { background:var(--s2); padding:14px 12px; text-align:center; }
+
+    .stk-num {
+      font-family:'Cabinet Grotesk', sans-serif;
+      font-size:18px; font-weight:900; color:var(--oc);
+      letter-spacing:-0.03em; margin-bottom:3px;
+    }
+
+    .stk-lbl {
+      font-size:9px; font-weight:600; color:var(--ink3);
+      text-transform:uppercase; letter-spacing:0.1em;
+    }
+
+    /* ═══════════════════════════════════════════
+       GAS CHART
+    ═══════════════════════════════════════════ */
+    .chart-box {
+      background:var(--s2); border:1px solid var(--rule);
+      border-radius:8px; padding:12px;
+    }
+
+    #gasChart { width:100%; height:80px; display:block; }
+    .chart-foot {
+      font-family:'DM Mono', monospace; font-size:10px;
+      color:var(--ink3); margin-top:6px;
+    }
+
+    /* ═══════════════════════════════════════════
+       LATENCY
+    ═══════════════════════════════════════════ */
+    .lat-row {
+      display:flex; align-items:center; gap:12px;
+      padding:9px 0; border-bottom:1px solid var(--rule2);
+    }
+
+    .lat-row:last-child { border-bottom:none; }
+    .lat-name { font-size:12px; font-weight:500; min-width:72px; color:var(--ink2); }
+    .lat-track { flex:1; height:6px; background:var(--s3); border-radius:999px; overflow:hidden; }
+    .lat-fill  { height:100%; border-radius:999px; transition:width 0.5s ease; background:var(--ng); }
+    .lat-fill.mid  { background:var(--oc); }
+    .lat-fill.slow { background:var(--em); }
+    .lat-ms { font-family:'DM Mono', monospace; font-size:11.5px; min-width:55px; text-align:right; font-weight:500; }
+
+    /* ═══════════════════════════════════════════
+       BLOCKS TABLE
+    ═══════════════════════════════════════════ */
+    .bk-table { width:100%; border-collapse:collapse; font-family:'DM Mono', monospace; font-size:11px; }
+    .bk-table th { text-align:left; font-size:9px; text-transform:uppercase; letter-spacing:0.12em; color:var(--ink3); padding:6px 10px; border-bottom:1px solid var(--rule); font-weight:500; }
+    .bk-table td { padding:8px 10px; color:var(--ink2); border-bottom:1px solid var(--rule2); }
+    .bk-table tr:last-child td { border-bottom:none; }
+    .bk-table tr:hover td { background:var(--s2); }
+    .td-blk { color:var(--gr2); font-weight:600; }
+    .td-tx  { color:var(--oc); }
+    .td-gs  { color:var(--ink2); }
+    .td-tm  { color:var(--ng); }
+
+    /* ═══════════════════════════════════════════
+       CCTP
+    ═══════════════════════════════════════════ */
+    .cctp-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:6px; margin-top:14px; }
+
+    .cctp-row {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:8px 12px; background:var(--s2);
+      border-radius:8px; border:1px solid var(--rule);
+      font-family:'DM Mono', monospace; font-size:11px;
+      transition:border-color var(--t);
+    }
+
+    .cctp-row:hover { border-color:rgba(45,106,79,0.25); }
+    .cctp-row.hl    { border-color:rgba(45,106,79,0.4); background:var(--gr3); }
+    .cctp-ch        { color:var(--ink2); }
+    .cctp-dm        { color:var(--oc); font-weight:600; }
+    .cctp-row.hl .cctp-ch { color:var(--gr2); font-weight:600; }
+
+    /* ═══════════════════════════════════════════
+       PROS BANNER
+    ═══════════════════════════════════════════ */
+    .pros-band {
+      background:var(--s1); border:1px solid var(--rule);
+      border-radius:14px; padding:28px 28px;
+      display:grid; grid-template-columns:1fr auto;
+      align-items:center; gap:24px; flex-wrap:wrap;
+    }
+
+    .pros-title {
+      font-family:'Cabinet Grotesk', sans-serif;
+      font-size:24px; font-weight:900;
+      letter-spacing:-0.04em; margin:8px 0 6px;
+    }
+
+    .pros-desc { font-size:13px; color:var(--ink3); line-height:1.65; max-width:520px; }
+
+    .pros-nums { display:flex; gap:12px; flex-wrap:wrap; }
+
+    .pros-num-cell {
+      text-align:center; padding:14px 18px;
+      border:1px solid rgba(212,131,26,0.22);
+      border-radius:10px; background:var(--oc3); min-width:110px;
+    }
+
+    .pros-num-val {
+      font-family:'Cabinet Grotesk', sans-serif;
+      font-size:22px; font-weight:900; color:var(--oc);
+      letter-spacing:-0.04em; line-height:1; margin-bottom:4px;
+    }
+
+    .pros-num-lbl {
+      font-size:9px; color:var(--ink3); font-weight:600;
+      text-transform:uppercase; letter-spacing:0.1em;
+    }
+
+    /* ═══════════════════════════════════════════
+       CARDS (primitives / build)
+    ═══════════════════════════════════════════ */
+    .c-cards { display:flex; flex-direction:column; gap:0; }
+
+    .c-card {
+      padding:14px 0; border-bottom:1px solid var(--rule);
+      display:flex; gap:14px; align-items:flex-start;
+      transition:var(--t);
+    }
+
+    .c-card:last-child { border-bottom:none; }
+    .c-card:hover { padding-left:4px; }
+
+    .c-card-icon {
+      width:30px; height:30px; flex-shrink:0;
+      border:1px solid var(--rule); border-radius:7px;
+      background:var(--s2); display:flex;
+      align-items:center; justify-content:center;
+      font-size:13px; margin-top:2px;
+    }
+
+    .c-card h4 {
+      font-family:'Cabinet Grotesk', sans-serif;
+      font-size:13.5px; font-weight:800;
+      letter-spacing:-0.01em; margin-bottom:4px;
+    }
+
+    .c-card p { font-size:12.5px; color:var(--ink3); line-height:1.65; }
+
+    /* investors */
+    .inv-pills { display:flex; flex-wrap:wrap; gap:7px; margin-top:14px; }
+
+    .inv-pill {
+      font-family:'DM Mono', monospace; font-size:10px;
+      padding:6px 12px; border-radius:6px;
+      background:var(--s2); border:1px solid var(--rule);
+      color:var(--ink2); transition:var(--t); cursor:default;
+    }
+
+    .inv-pill:hover { border-color:rgba(45,106,79,0.35); color:var(--gr2); }
+
+    /* links */
+    .links { display:flex; flex-wrap:wrap; gap:7px; margin-top:14px; }
+
+    .links a {
+      text-decoration:none;
+      font-family:'DM Mono', monospace; font-size:10.5px;
+      color:var(--ink2); padding:7px 13px;
+      border-radius:6px; background:var(--s2);
+      border:1px solid var(--rule); transition:var(--t);
+    }
+
+    .links a:hover {
+      border-color:rgba(45,106,79,0.35);
+      color:var(--gr2); transform:translateY(-1px);
+    }
+
+    /* ═══════════════════════════════════════════
+       ARCH
+    ═══════════════════════════════════════════ */
+    .arch-grid {
+      display:grid; grid-template-columns:1fr 1fr;
+      gap:1px; background:var(--rule);
+      border:1px solid var(--rule); border-radius:10px; overflow:hidden;
+      margin-top:14px;
+    }
+
+    .arch-cell { background:var(--s2); padding:14px 16px; }
+
+    .arch-lbl {
+      font-family:'DM Mono', monospace; font-size:9px;
+      font-weight:500; text-transform:uppercase;
+      letter-spacing:0.14em; margin-bottom:4px;
+    }
+
+    .arch-val  { font-size:13px; font-weight:700; color:var(--ink); margin-bottom:3px; }
+    .arch-desc { font-size:11.5px; color:var(--ink3); line-height:1.5; }
+
+    /* ═══════════════════════════════════════════
+       SIGNATURE
+    ═══════════════════════════════════════════ */
+    .sig {
+      border-top:2px solid var(--gr);
+      display:flex; justify-content:space-between;
+      align-items:center; padding:16px 0 0;
+      flex-wrap:wrap; gap:10px; margin-top:14px;
+    }
+
+    .sig-left {
+      font-family:'DM Mono', monospace; font-size:10px;
+      color:var(--ink3); letter-spacing:0.08em;
+    }
+
+    .sig-right {
+      font-family:'Cabinet Grotesk', sans-serif;
+      font-size:13px; font-weight:900;
+      letter-spacing:0.04em; text-transform:uppercase;
+      color:var(--gr2);
+    }
+
+    /* ═══════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════ */
+    @media (max-width:1100px) {
+      .hero { grid-template-columns:1fr; }
+      .hero-right { flex-direction:row; flex-wrap:wrap; }
+      .hr-card { flex:1 1 200px; }
+      .stats-row, .metrics-grid { grid-template-columns:repeat(2,1fr); }
+      .grid2, .grid3, .ng-banner { grid-template-columns:1fr; }
+      .ng-left { border-right:none; border-bottom:1px solid var(--rule); }
+      .usecase-grid { grid-template-columns:1fr 1fr; }
+      .pros-band { grid-template-columns:1fr; }
+      .cctp-grid { grid-template-columns:1fr; }
+      .arch-grid { grid-template-columns:1fr; }
+    }
+
+    @media (max-width:640px) {
+      .stats-row, .metrics-grid { grid-template-columns:1fr; }
+      .hero-strip { grid-template-columns:1fr; }
+      .ng-stats { grid-template-columns:1fr; }
+      .usecase-grid { grid-template-columns:1fr; }
+      .stk-grid { grid-template-columns:1fr; }
+      .wrap { padding:12px 12px 24px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-icon">🦅</div>
+      <div>
+        <div class="brand-name">Pharos<span>NG</span></div>
+        <div class="brand-tag">DeFi · Nigeria · Pacific Ocean Mainnet</div>
+      </div>
+    </div>
+    <div class="top-right">
+      <div class="pill live"><div class="live-dot"></div>Mainnet Live</div>
+      <div class="pill ng">🇳🇬 Nigeria DeFi</div>
+      <div class="pill">50K TPS</div>
+      <div class="pill">No Wallet Needed</div>
+    </div>
+  </div>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-left">
+      <div>
+        <div class="eyebrow">Pharos Network · Pacific Ocean Mainnet</div>
+        <h1>DeFi Built<br/>for <em>Nigeria</em>.<br/><span class="dim">Finally.</span></h1>
+        <div class="hero-desc">
+          Pharos is a parallel EVM L1 blockchain engineered for real-world financial access. For Nigerians — remittances without 10% fees, dollar savings without a US bank account, stablecoin payroll, and RWA investment rails. 50K TPS. Subsecond finality. $52M backed. Live now.
+        </div>
+        <div class="flag-strip">
+          <div class="flag-icon">🇳🇬</div>
+          <div class="flag-text">Built for 220M Nigerians · USDC rails · NGN stablecoin potential · zero wallet friction</div>
+        </div>
+      </div>
+      <div class="hero-strip">
+        <div class="hs-item">
+          <div class="hs-num">50K</div>
+          <div class="hs-lbl">Target TPS</div>
+        </div>
+        <div class="hs-item">
+          <div class="hs-num">$52M</div>
+          <div class="hs-lbl">Raised</div>
+        </div>
+        <div class="hs-item">
+          <div class="hs-num">220M</div>
+          <div class="hs-lbl">Nigerian Market</div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="hr-card">
+        <div>
+          <div class="hr-label">Live Chain Data</div>
+          <h3>Real-time RPC pulse from mainnet &amp; testnet.</h3>
+        </div>
+        <div class="hr-card p">No wallet. No gas. Just live data.</div>
+      </div>
+      <div class="hr-card accent">
+        <div>
+          <div class="hr-label" style="color:rgba(0,0,0,0.4);">Nigeria Angle</div>
+          <h3>Remittances · Dollar Savings · RWA</h3>
+        </div>
+        <p>USDC on CCTP domain 31. x402 micropayment rails. Institutional DeFi meets everyday Naira pain.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- WHY NIGERIA -->
+  <div class="ng-banner">
+    <div class="ng-left">
+      <div class="section-eyebrow">Nigeria Context</div>
+      <h2>Why <em>Nigeria</em> Needs<br/>Pharos Now</h2>
+      <p>Nigeria is Africa's largest economy with 220M people, yet 60% are unbanked or underbanked. Remittances cost 8–12% via Western Union. Naira has lost 70%+ of its value in two years. Nigerians are already the world's third-largest crypto users per capita — they understand the value, they just need the infrastructure.</p>
+      <p>Pharos provides the chain. USDC on CCTP provides the dollar. x402 provides the payment rails. Together that's a complete financial stack for 220 million people.</p>
+      <div class="ng-stats">
+        <div class="ng-stat">
+          <div class="ng-stat-num">220M</div>
+          <div class="ng-stat-lbl">Population</div>
+        </div>
+        <div class="ng-stat">
+          <div class="ng-stat-num">60%</div>
+          <div class="ng-stat-lbl">Unbanked/Underbanked</div>
+        </div>
+        <div class="ng-stat">
+          <div class="ng-stat-num">~10%</div>
+          <div class="ng-stat-lbl">Remittance Fee (Legacy)</div>
+        </div>
+        <div class="ng-stat">
+          <div class="ng-stat-num">#3</div>
+          <div class="ng-stat-lbl">Crypto Adoption Globally</div>
+        </div>
+      </div>
+    </div>
+    <div class="ng-right">
+      <div class="ng-card">
+        <div class="ng-card-icon">💸</div>
+        <div>
+          <h4>Remittances Without Robbery</h4>
+          <p>Diaspora sends $26B/year to Nigeria. Legacy rails take 8–12%. USDC via CCTP costs fractions of a cent.</p>
+        </div>
+      </div>
+      <div class="ng-card">
+        <div class="ng-card-icon">💵</div>
+        <div>
+          <h4>Dollar Savings Without a US Bank</h4>
+          <p>Hold USDC on-chain. No account approval, no KYC walls, no forex spread. Your savings in dollars, on your phone.</p>
+        </div>
+      </div>
+      <div class="ng-card">
+        <div class="ng-card-icon">🏗️</div>
+        <div>
+          <h4>RWA Access for Everyday Investors</h4>
+          <p>Tokenized real estate, commodities, and debt instruments — accessible from ₦50k instead of ₦50M.</p>
+        </div>
+      </div>
+      <div class="ng-card">
+        <div class="ng-card-icon">🤝</div>
+        <div>
+          <h4>SME Payment Rails via x402</h4>
+          <p>Lagos SMEs pay and receive in stablecoins. Instant settlement. No bank delays. No dollar restriction forms.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATS ROW -->
+  <div class="stats-row">
+    <div class="stat-cell">
+      <div class="stat-num gr">50K</div>
+      <div class="stat-lbl">Target TPS — EVM L1</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num oc">$52M</div>
+      <div class="stat-lbl">Total Funding Raised</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num em">131M+</div>
+      <div class="stat-lbl">Unique Testnet Addresses</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-num ng">1.26B</div>
+      <div class="stat-lbl">Cumulative Transactions</div>
+    </div>
+  </div>
+
+  <!-- USE CASES -->
+  <div class="panel">
+    <div class="section-eyebrow">Nigeria Use Cases</div>
+    <h2>What You Can Actually Build</h2>
+    <div class="sub">Real problems Nigerians face. Real solutions Pharos enables.</div>
+    <div class="usecase-grid">
+      <div class="usecase-card">
+        <span class="uc-icon">💸</span>
+        <div class="uc-title">Diaspora Remittance App</div>
+        <div class="uc-desc">USDC sent from UK/US lands in Nigeria in seconds via CCTP domain 31. Receiver converts to Naira via a local off-ramp partner.</div>
+        <span class="uc-tag tag-ng">CCTP + USDC</span>
+      </div>
+      <div class="usecase-card">
+        <span class="uc-icon">🏦</span>
+        <div class="uc-title">Dollar Savings Wallet</div>
+        <div class="uc-desc">Non-custodial USDC wallet. Earn yield via PROS staking. No CBN restrictions. No dollar allocation forms. Works on a $60 Android.</div>
+        <span class="uc-tag tag-gr">RealFi</span>
+      </div>
+      <div class="usecase-card">
+        <span class="uc-icon">🤖</span>
+        <div class="uc-title">Freelancer Pay Protocol</div>
+        <div class="uc-desc">Upwork/Fiverr alternative with x402 rails. International clients pay in USDC, freelancer receives on Pharos, off-ramps to Naira same day.</div>
+        <span class="uc-tag tag-oc">x402 Rails</span>
+      </div>
+      <div class="usecase-card">
+        <span class="uc-icon">🏘️</span>
+        <div class="uc-title">Fractional Real Estate</div>
+        <div class="uc-desc">Tokenize Lekki Phase 1 properties on Pharos. Nigerians invest from ₦50K. Rental yields paid in USDC monthly. Chainlink Data Streams for pricing.</div>
+        <span class="uc-tag tag-gr">RWA Tokenization</span>
+      </div>
+      <div class="usecase-card">
+        <span class="uc-icon">🛒</span>
+        <div class="uc-title">Lagos SME Settlement</div>
+        <div class="uc-desc">Merchants accept USDC at point of sale. No POS downtime. No bank transfer delays. Settle suppliers cross-border in the same transaction.</div>
+        <span class="uc-tag tag-oc">x402 Commerce</span>
+      </div>
+      <div class="usecase-card">
+        <span class="uc-icon">📱</span>
+        <div class="uc-title">USSD + On-Chain Bridge</div>
+        <div class="uc-desc">SPNs enable TEE-secure USSD-to-chain bridges. Let farmers in Kano access DeFi via *737# without smartphones or internet.</div>
+        <span class="uc-tag tag-em">SPNs + TEE</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- NETWORK PULSE -->
+  <div class="pulse-wrap">
+    <div class="pulse-head">
+      <div>
+        <div class="section-eyebrow">Live RPC</div>
+        <h2>Network Pulse</h2>
+        <div class="sub">Mainnet + Atlantic testnet · auto-refresh every 20s</div>
+      </div>
+      <div id="rpcStatus" class="status-pill sp-wait">● loading</div>
+    </div>
+    <div class="metrics-grid">
+      <div class="metric-cell">
+        <div class="m-label">Mainnet Block</div>
+        <div class="m-val loading" id="mainnetBlock">—</div>
+        <div class="m-meta">Chain ID: <span id="mainnetChain">—</span></div>
+      </div>
+      <div class="metric-cell">
+        <div class="m-label">Testnet Block</div>
+        <div class="m-val loading" id="testnetBlock">—</div>
+        <div class="m-meta">Chain ID: <span id="testnetChain">—</span></div>
+      </div>
+      <div class="metric-cell">
+        <div class="m-label">Mainnet Gas</div>
+        <div class="m-val loading" id="mainnetGas">—</div>
+        <div class="m-meta">rpc.pharos.xyz</div>
+      </div>
+      <div class="metric-cell">
+        <div class="m-label">Testnet Gas</div>
+        <div class="m-val loading" id="testnetGas">—</div>
+        <div class="m-meta">atlantic.dplabs-internal.com</div>
+      </div>
+    </div>
+    <div class="pulse-foot">
+      <span>refresh: 20s</span>
+      <span id="lastUpdated">waiting for first fetch…</span>
+    </div>
+  </div>
+
+  <!-- TERMINAL + ARCH -->
+  <div class="grid2">
+    <div class="terminal">
+      <div class="term-bar">
+        <span class="tdot tdot-r"></span>
+        <span class="tdot tdot-a"></span>
+        <span class="tdot tdot-g"></span>
+        <span class="term-name">pharosng-defi / nigeria build</span>
+      </div>
+      <div class="term-body" id="terminalFeed"></div>
+    </div>
+    <div class="panel">
+      <div class="section-eyebrow">Architecture</div>
+      <h2>How Pharos Is Built</h2>
+      <div class="sub" style="margin-bottom:4px;">A layered parallelism model targeting 50K TPS with subsecond finality.</div>
+      <div class="arch-grid">
+        <div class="arch-cell">
+          <div class="arch-lbl" style="color:var(--gr2);">L1-Core</div>
+          <div class="arch-val">High-Throughput Chain</div>
+          <div class="arch-desc">Async BFT consensus. Full lifecycle pipelining. Subsecond finality.</div>
+        </div>
+        <div class="arch-cell">
+          <div class="arch-lbl" style="color:var(--oc);">L1-Base</div>
+          <div class="arch-val">Hardware-Accelerated DA</div>
+          <div class="arch-desc">Parallel Merklization. Real-time verification for TradFi assets.</div>
+        </div>
+        <div class="arch-cell">
+          <div class="arch-lbl" style="color:var(--ng);">SPNs</div>
+          <div class="arch-val">Special Processing Networks</div>
+          <div class="arch-desc">TEE compute, MPC, cross-SPN interop. USSD bridges possible here.</div>
+        </div>
+        <div class="arch-cell">
+          <div class="arch-lbl" style="color:var(--em2);">Dual VM</div>
+          <div class="arch-val">EVM + WASM (PVM)</div>
+          <div class="arch-desc">Full EVM compatibility. WASM for performance-critical workloads.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOLS BANNER -->
+  <div class="tools-banner">
+    <div>
+      <div class="section-eyebrow" style="color:rgba(0,0,0,0.4);">Builder Utility Hub</div>
+      <h2>6 Wallet-Free On-Chain Tools</h2>
+      <p>All read live from Pharos public RPC. No wallet. No gas. No friction.</p>
+    </div>
+    <div class="tb-count">06</div>
+  </div>
+
+  <!-- TOOLS ROW 1 -->
+  <div class="grid2">
+    <!-- ADDRESS INSPECTOR -->
+    <div class="tool-block">
+      <div class="tool-head">
+        <div class="tool-icon-row">
+          <div class="tool-icon">🔍</div>
+          <div class="tool-name">Address Inspector</div>
+        </div>
+        <span class="tool-badge tag-gr">Live RPC</span>
+      </div>
+      <div class="tool-desc">Check any wallet's balance, nonce, and tx count on Pharos mainnet or testnet.</div>
+      <div class="row">
+        <select id="addrNet"><option value="mainnet">Mainnet</option><option value="testnet">Testnet</option></select>
+        <input type="text" id="addrInput" placeholder="0x address…"/>
+        <button class="btn btn-gr" onclick="inspectAddr()">Inspect</button>
+      </div>
+      <div class="out" id="addrOut">
+        <button class="copy-btn" onclick="copyOut('addrOut')">copy</button>
+        <span class="dim">// paste an address above</span>
+      </div>
+    </div>
+
+    <!-- TX LOOKUP -->
+    <div class="tool-block">
+      <div class="tool-head">
+        <div class="tool-icon-row">
+          <div class="tool-icon">📡</div>
+          <div class="tool-name">Transaction Lookup</div>
+        </div>
+        <span class="tool-badge tag-oc">Decode</span>
+      </div>
+      <div class="tool-desc">Drop a tx hash — get status, gas used, from/to, and value. Mainnet or testnet.</div>
+      <div class="row">
+        <select id="txNet"><option value="mainnet">Mainnet</option><option value="testnet">Testnet</option></select>
+        <input type="text" id="txInput" placeholder="0x tx hash…"/>
+        <button class="btn btn-oc" onclick="lookupTx()">Lookup</button>
+      </div>
+      <div class="out" id="txOut">
+        <button class="copy-btn" onclick="copyOut('txOut')">copy</button>
+        <span class="dim">// paste a tx hash above</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOOLS ROW 2 -->
+  <div class="grid2">
+    <!-- NGN CONVERTER (Nigeria-specific) -->
+    <div class="tool-block">
+      <div class="tool-head">
+        <div class="tool-icon-row">
+          <div class="tool-icon">₦</div>
+          <div class="tool-name">USDC / NGN / ETH Converter</div>
+        </div>
+        <span class="tool-badge tag-ng">🇳🇬 Nigeria</span>
+      </div>
+      <div class="tool-desc">Live USDC ↔ Naira ↔ ETH converter. Uses a live USD/NGN rate. Type in any field.</div>
+      <div class="row" style="margin-bottom:6px;">
+        <input type="number" id="usdRate" placeholder="USD/NGN rate (e.g. 1580)" value="1580"/>
+        <button class="btn btn-ng" onclick="fetchRate()">Fetch Rate</button>
+      </div>
+      <div class="col">
+        <div class="ngn-row">
+          <span class="ngn-lbl" style="color:var(--oc);">USDC</span>
+          <input type="number" id="usdcIn" placeholder="0" oninput="cvtNGN('usdc')" min="0"/>
+        </div>
+        <div class="ngn-row">
+          <span class="ngn-lbl" style="color:var(--ng);">NGN ₦</span>
+          <input type="number" id="ngnIn" placeholder="0" oninput="cvtNGN('ngn')" min="0"/>
+        </div>
+        <div class="ngn-row">
+          <span class="ngn-lbl" style="color:var(--gr2);">Wei</span>
+          <input type="number" id="weiIn" placeholder="0" oninput="cvtNGN('wei')" min="0"/>
+        </div>
+      </div>
+      <div class="out" id="ngnOut">
+        <button class="copy-btn" onclick="copyOut('ngnOut')">copy</button>
+        <span class="dim">// set rate then type any amount</span>
+      </div>
+    </div>
+
+    <!-- PROS STAKING CALC -->
+    <div class="tool-block">
+      <div class="tool-head">
+        <div class="tool-icon-row">
+          <div class="tool-icon">📈</div>
+          <div class="tool-name">PROS Staking Calculator</div>
+        </div>
+        <span class="tool-badge tag-oc">$PROS</span>
+      </div>
+      <div class="tool-desc">Model staking yield at 5% APY (from month 7+). Zero inflation during first 6-month lock.</div>
+      <div class="row">
+        <input type="number" id="stkAmt" placeholder="PROS amount…" min="0"/>
+        <select id="stkPrd">
+          <option value="1">1 Month</option>
+          <option value="3">3 Months</option>
+          <option value="6">6 Months</option>
+          <option value="12" selected>12 Months</option>
+          <option value="24">24 Months</option>
+          <option value="36">36 Months</option>
+        </select>
+        <button class="btn btn-oc" onclick="calcStk()">Calculate</button>
+      </div>
+      <div class="stk-grid">
+        <div class="stk-cell"><div class="stk-num" id="stkYield">—</div><div class="stk-lbl">PROS Earned</div></div>
+        <div class="stk-cell"><div class="stk-num" id="stkTotal">—</div><div class="stk-lbl">Total Balance</div></div>
+        <div class="stk-cell"><div class="stk-num" id="stkApy">5%</div><div class="stk-lbl">Annual APY</div></div>
+      </div>
+      <div style="font-size:10.5px;color:var(--ink3);">0% inflation months 1–6 · 5% from month 7 · governance may adjust</div>
+    </div>
+  </div>
+
+  <!-- TOOLS ROW 3 -->
+  <div class="grid3">
+    <!-- GAS CHART -->
+    <div class="tool-block">
+      <div class="tool-head">
+        <div class="tool-icon-row">
+          <div class="tool-icon">⛽</div>
+          <div class="tool-name">Gas History</div>
+        </div>
+        <span class="tool-badge tag-gr">Sparkline</span>
+      </div>
+      <div class="tool-desc">Rolling gas price chart from the last 20 RPC reads. Auto-updates every 20s.</div>
+      <div class="chart-box">
+        <svg id="gasChart" viewBox="0 0 300 80" preserveAspectRatio="none">
+          <text x="50%" y="50%" text-anchor="middle" font-family="DM Mono" font-size="10" fill="#6e6a52" dominant-baseline="middle">collecting…</text>
+        </svg>
+        <div class="chart-foot" id="gasChartFoot">waiting…</div>
+      </div>
+      <div class="out" id="gasOut" style="min-height:54px;"><span class="dim">// builds on first fetch</span></div>
+    </div>
+
+    <!-- LATEST BLOCKS -->
+    <div class="tool-block">
+      <div class="tool-head">
+        <div class="tool-icon-row">
+          <div class="tool-icon">🧱</div>
+          <div class="tool-name">Latest Blocks</div>
+        </div>
+        <span class="tool-badge tag-ng">Live</span>
+      </div>
+      <div class="tool-desc">Last 5 mainnet blocks — tx count, gas used, and timestamp.</div>
+      <div style="overflow-x:auto;">
+        <table class="bk-table">
+          <thead><tr><th>Block</th><th>Txs</th><th>Gas</th><th>Time</th></tr></thead>
+          <tbody id="blocksBody"><tr><td colspan="4" style="color:var(--ink3);font-style:italic;padding:12px 10px;">Waiting for first fetch…</td></tr></tbody>
+        </table>
+      </div>
+      <button class="btn btn-gh" style="width:100%;margin-top:auto;" onclick="fetchBlocks()">↻ Refresh</button>
+    </div>
+
+    <!-- LATENCY -->
+    <div class="tool-block">
+      <div class="tool-head">
+        <div class="tool-icon-row">
+          <div class="tool-icon">⚡</div>
+          <div class="tool-name">RPC Latency</div>
+        </div>
+        <span class="tool-badge tag-em">Ping</span>
+      </div>
+      <div class="tool-desc">Measures round-trip time to both Pharos endpoints from your browser — useful for Nigerian devs checking connectivity.</div>
+      <div>
+        <div class="lat-row">
+          <span class="lat-name">Mainnet</span>
+          <div class="lat-track"><div class="lat-fill" id="latBarM" style="width:0%"></div></div>
+          <span class="lat-ms" id="latValM" style="color:var(--ink3)">—</span>
+        </div>
+        <div class="lat-row">
+          <span class="lat-name">Testnet</span>
+          <div class="lat-track"><div class="lat-fill" id="latBarT" style="width:0%"></div></div>
+          <span class="lat-ms" id="latValT" style="color:var(--ink3)">—</span>
+        </div>
+      </div>
+      <button class="btn btn-gh" style="width:100%;" onclick="runLat()">⚡ Test Latency</button>
+      <div class="out" id="latOut" style="min-height:44px;"><span class="dim">// press to ping</span></div>
+    </div>
+  </div>
+
+  <!-- CCTP -->
+  <div class="panel">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:14px;">
+      <div>
+        <div class="section-eyebrow">USDC Cross-Chain</div>
+        <h2>CCTP Domain Registry</h2>
+        <div class="sub">Circle's Cross-Chain Transfer Protocol. Pharos is domain 31 — USDC flows natively to/from Nigeria.</div>
+      </div>
+      <span class="tool-badge tag-oc" style="align-self:flex-start;margin-top:4px;">Circle USDC</span>
+    </div>
+    <div class="cctp-grid" id="cctpGrid"></div>
+  </div>
+
+  <!-- PROS BANNER -->
+  <div class="pros-band">
+    <div>
+      <div class="section-eyebrow">Native Token</div>
+      <div class="pros-title">$PROS — Powering Pharos</div>
+      <div class="pros-desc">1B genesis supply. No inflation for 6 months. 5% APY from month 7. Staking, governance, fee payment, RWA collateral — and the key to earning yield in USD-equivalent on the Pharos chain.</div>
+    </div>
+    <div class="pros-nums">
+      <div class="pros-num-cell"><div class="pros-num-val">1B</div><div class="pros-num-lbl">Genesis Supply</div></div>
+      <div class="pros-num-cell"><div class="pros-num-val">0%</div><div class="pros-num-lbl">Inflation Mo. 1–6</div></div>
+      <div class="pros-num-cell"><div class="pros-num-val">5%</div><div class="pros-num-lbl">APY Mo. 7+</div></div>
+    </div>
+  </div>
+
+  <!-- PRIMITIVES + BUILD ANGLES -->
+  <div class="grid2">
+    <div class="panel">
+      <div class="section-eyebrow">Tech Stack</div>
+      <h2>Core Primitives</h2>
+      <div class="sub" style="margin-bottom:14px;">What makes Pharos genuinely different from generic EVM chains — and why it matters for Nigeria.</div>
+      <div class="c-cards">
+        <div class="c-card">
+          <div class="c-card-icon">⚡</div>
+          <div><h4>x402 Payment Rails</h4><p>Micropayments, pay-per-use APIs, agent commerce. Nigerian SMEs can build subscription or usage-based products natively on-chain.</p></div>
+        </div>
+        <div class="c-card">
+          <div class="c-card-icon">🔗</div>
+          <div><h4>Chainlink CCIP + Circle CCTP</h4><p>USDC moves between Pharos (domain 31) and 11 other chains. Chainlink Data Streams feed real-world price data for RWA products.</p></div>
+        </div>
+        <div class="c-card">
+          <div class="c-card-icon">🧩</div>
+          <div><h4>SPNs — Special Processing Networks</h4><p>TEE computing enables privacy-preserving KYC, USSD bridges for feature phones, and enterprise data workloads off the main chain.</p></div>
+        </div>
+        <div class="c-card">
+          <div class="c-card-icon">🖥️</div>
+          <div><h4>EVM + WASM Dual VM</h4><p>Full Solidity compatibility. WASM support for performance-critical use cases. No migration cost for existing EVM developers.</p></div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="section-eyebrow">Funding & Investors</div>
+      <h2>Who's Behind Pharos</h2>
+      <div class="sub" style="margin-bottom:14px;">$52M raised. Deep institutional credibility from crypto-native and TradFi worlds.</div>
+      <div class="c-cards">
+        <div class="c-card">
+          <div class="c-card-icon">🌱</div>
+          <div><h4>Seed — $8M, Nov 2024</h4><p>Led by Lightspeed Faction and Hack VC. SNZ Capital, Dispersion Capital, Hash Global, Chorus One.</p></div>
+        </div>
+        <div class="c-card">
+          <div class="c-card-icon">🚀</div>
+          <div><h4>Series A — $44M, Apr 2026</h4><p>Asian PE, Hong Kong regulated entities, renewable energy. Sumitomo Corp, Chainlink, Flow Traders, SNZ.</p></div>
+        </div>
+      </div>
+      <div class="inv-pills">
+        <span class="inv-pill">Lightspeed Faction</span>
+        <span class="inv-pill">Hack VC</span>
+        <span class="inv-pill">Sumitomo Corp</span>
+        <span class="inv-pill">Chainlink</span>
+        <span class="inv-pill">Flow Traders</span>
+        <span class="inv-pill">SNZ Capital</span>
+        <span class="inv-pill">Chorus One</span>
+      </div>
+      <div class="links" style="margin-top:20px;">
+        <a href="https://pharos.xyz" target="_blank">Main Site</a>
+        <a href="https://pharos.xyz/devhub" target="_blank">DevHub</a>
+        <a href="https://docs.pharos.xyz" target="_blank">Docs</a>
+        <a href="https://testnet.pharosnetwork.xyz/" target="_blank">Faucet</a>
+        <a href="https://www.pharosscan.xyz" target="_blank">Explorer</a>
+        <a href="https://pharos.socialscan.io/" target="_blank">SocialScan</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIG -->
+  <div class="sig">
+    <div class="sig-left">🦅 Built for Nigeria · Pharos Pacific Ocean Mainnet · May 2026</div>
+    <div class="sig-right">PharosNG · valg</div>
+  </div>
+
+</div>
+
+<script>
+'use strict';
+
+/* ─── CONFIG ─── */
+const RPC = {
+  mainnet:'https://rpc.pharos.xyz',
+  testnet:'https://atlantic.dplabs-internal.com'
+};
+const REFRESH_MS = 20000;
+const MAX_GAS    = 20;
+const gasHist    = [];
+
+/* ─── HELPERS ─── */
+const el     = id => document.getElementById(id);
+const hexInt = h  => parseInt(h,16);
+const numFmt = n  => Number(n).toLocaleString();
+const fmtBig = n  => n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e3?(n/1e3).toFixed(2)+'K':n.toFixed(2);
+const short  = a  => a?`${a.slice(0,8)}…${a.slice(-6)}`:'—';
+const ts     = () => new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+
+function setMetric(id,val) {
+  const n=el(id); if(!n)return;
+  n.textContent=val; n.classList.remove('loading');
+}
+
+function copyOut(id) {
+  navigator.clipboard.writeText(el(id)?.innerText||'').then(()=>{
+    const b=el(id)?.querySelector('.copy-btn');
+    if(b){b.textContent='copied!';setTimeout(()=>b.textContent='copy',1400);}
+  });
+}
+
+/* ─── RPC ─── */
+async function rpc(url,method,params=[]) {
+  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({jsonrpc:'2.0',method,params,id:1})});
+  if(!r.ok) throw new Error(`HTTP ${r.status}`);
+  const d=await r.json();
+  if(d.error) throw new Error(d.error.message||'RPC error');
+  return d.result;
+}
+
+/* ─── MAIN REFRESH ─── */
+async function refresh() {
+  const termEl=el('terminalFeed'), statEl=el('rpcStatus');
+  const lines=[
+    `<span class="td">// pharosng-defi / nigeria build</span>`,
+    `<span class="td">// ${ts()}</span>`,
+    `<span class="to">[probe]  pinging mainnet + testnet…</span>`
+  ];
+  termEl.innerHTML=lines.join('\n');
+  statEl.className='status-pill sp-wait'; statEl.textContent='● probing';
+
+  try {
+    const [[mb,mg,mc],[tb,tg,tc]]=await Promise.all([
+      Promise.all([rpc(RPC.mainnet,'eth_blockNumber'),rpc(RPC.mainnet,'eth_gasPrice'),rpc(RPC.mainnet,'net_version')]),
+      Promise.all([rpc(RPC.testnet,'eth_blockNumber'),rpc(RPC.testnet,'eth_gasPrice'),rpc(RPC.testnet,'net_version')])
+    ]);
+    const mBlock=numFmt(hexInt(mb)), mGas=(hexInt(mg)/1e9).toFixed(3);
+    const tBlock=numFmt(hexInt(tb)), tGas=(hexInt(tg)/1e9).toFixed(3);
+    setMetric('mainnetBlock',mBlock); setMetric('testnetBlock',tBlock);
+    setMetric('mainnetGas',mGas+' gwei'); setMetric('testnetGas',tGas+' gwei');
+    setMetric('mainnetChain',mc); setMetric('testnetChain',tc);
+
+    gasHist.push(parseFloat(mGas));
+    if(gasHist.length>MAX_GAS) gasHist.shift();
+    drawGas();
+
+    statEl.className='status-pill sp-ok'; statEl.textContent='● live';
+    el('lastUpdated').textContent=`last sync: ${ts()}`;
+
+    lines.push(`<span class="tg">[ok]     mainnet chain ${mc} · block ${mBlock} · gas ${mGas} gwei</span>`);
+    lines.push(`<span class="tg">[ok]     testnet chain ${tc} · block ${tBlock} · gas ${tGas} gwei</span>`);
+    lines.push(`<span class="td">[note]   both surfaces stable for builder tooling</span>`);
+    lines.push(`<span class="to">[ng]     220M Nigerians · USDC CCTP domain 31 · x402 rails ready</span>`);
+    lines.push(`<span class="tng">[live]   🦅 Pacific Ocean Mainnet · PharosNG</span>`);
+    termEl.innerHTML=lines.join('\n');
+    if(gasHist.length===1) fetchBlocks();
+  } catch(e) {
+    statEl.className='status-pill sp-err'; statEl.textContent='● degraded';
+    el('lastUpdated').textContent=`attempt: ${ts()}`;
+    lines.push(`<span class="tr">[err]    ${e.message}</span>`);
+    termEl.innerHTML=lines.join('\n');
+  }
+}
+
+/* ─── ADDRESS INSPECTOR ─── */
+async function inspectAddr() {
+  const addr=el('addrInput').value.trim(), net=el('addrNet').value, out=el('addrOut');
+  if(!addr.startsWith('0x')){out.innerHTML='<button class="copy-btn" onclick="copyOut(\'addrOut\')">copy</button><span class="err">// invalid address</span>';return;}
+  out.innerHTML=`<button class="copy-btn" onclick="copyOut('addrOut')">copy</button><span class="dim">// fetching…</span>`;
+  try {
+    const url=RPC[net];
+    const [bal,nc]=await Promise.all([rpc(url,'eth_getBalance',[addr,'latest']),rpc(url,'eth_getTransactionCount',[addr,'latest'])]);
+    const eth=(parseInt(bal,16)/1e18).toFixed(6), nonce=hexInt(nc);
+    out.innerHTML=[`<button class="copy-btn" onclick="copyOut('addrOut')">copy</button>`,
+      `<span class="ok">// ${net} · address found</span>`,
+      `<span class="key">address  </span><span class="val">${short(addr)}</span>`,
+      `<span class="key">balance  </span><span class="val">${eth} ETH</span>`,
+      `<span class="key">nonce    </span><span class="val">${numFmt(nonce)}</span>`].join('\n');
+  } catch(e){out.innerHTML=`<button class="copy-btn" onclick="copyOut('addrOut')">copy</button><span class="err">// ${e.message}</span>`;}
+}
+
+/* ─── TX LOOKUP ─── */
+async function lookupTx() {
+  const hash=el('txInput').value.trim(), net=el('txNet').value, out=el('txOut');
+  if(!hash.startsWith('0x')){out.innerHTML='<button class="copy-btn" onclick="copyOut(\'txOut\')">copy</button><span class="err">// invalid hash</span>';return;}
+  out.innerHTML=`<button class="copy-btn" onclick="copyOut('txOut')">copy</button><span class="dim">// fetching…</span>`;
+  try {
+    const url=RPC[net];
+    const [tx,rc]=await Promise.all([rpc(url,'eth_getTransactionByHash',[hash]),rpc(url,'eth_getTransactionReceipt',[hash])]);
+    if(!tx){out.innerHTML=`<button class="copy-btn" onclick="copyOut('txOut')">copy</button><span class="err">// tx not found</span>`;return;}
+    const status=rc?(hexInt(rc.status)===1?'✓ success':'✗ failed'):'pending';
+    const gasUsed=rc?numFmt(hexInt(rc.gasUsed)):'—';
+    const value=(parseInt(tx.value,16)/1e18).toFixed(6);
+    const blk=tx.blockNumber?numFmt(hexInt(tx.blockNumber)):'pending';
+    out.innerHTML=[`<button class="copy-btn" onclick="copyOut('txOut')">copy</button>`,
+      `<span class="ok">// tx found on ${net}</span>`,
+      `<span class="key">status   </span><span class="val">${status}</span>`,
+      `<span class="key">block    </span><span class="val">${blk}</span>`,
+      `<span class="key">from     </span><span class="val">${short(tx.from)}</span>`,
+      `<span class="key">to       </span><span class="val">${short(tx.to)}</span>`,
+      `<span class="key">value    </span><span class="val">${value} ETH</span>`,
+      `<span class="key">gas used </span><span class="val">${gasUsed}</span>`].join('\n');
+  } catch(e){out.innerHTML=`<button class="copy-btn" onclick="copyOut('txOut')">copy</button><span class="err">// ${e.message}</span>`;}
+}
+
+/* ─── NGN CONVERTER ─── */
+let usdNgnRate=1580, cvtBusy=false;
+
+async function fetchRate() {
+  const btn=document.querySelector('.btn-ng');
+  btn.textContent='Fetching…'; btn.disabled=true;
+  try {
+    const r=await fetch('https://open.er-api.com/v6/latest/USD');
+    if(r.ok){const d=await r.json(); if(d.rates?.NGN){usdNgnRate=d.rates.NGN; el('usdRate').value=usdNgnRate.toFixed(0); showRateOk();return;}}
+  } catch(_){}
+  const manual=parseFloat(el('usdRate').value);
+  if(manual>0) usdNgnRate=manual;
+  showRateOk();
+  btn.textContent='Fetch Rate'; btn.disabled=false;
+}
+
+function showRateOk() {
+  const btn=document.querySelector('.btn-ng');
+  btn.textContent='✓ Rate Set'; setTimeout(()=>{btn.textContent='Fetch Rate';btn.disabled=false;},1200);
+}
+
+function cvtNGN(from) {
+  if(cvtBusy) return; cvtBusy=true;
+  const rate=usdNgnRate||1580;
+  const ETH_USD=3500; // approximate
+  try {
+    let usdc;
+    if(from==='usdc')  usdc=parseFloat(el('usdcIn').value)||0;
+    if(from==='ngn')   usdc=(parseFloat(el('ngnIn').value)||0)/rate;
+    if(from==='wei')   usdc=(parseFloat(el('weiIn').value)||0)/1e18*ETH_USD;
+    if(from!=='usdc')  el('usdcIn').value=usdc.toFixed(4);
+    if(from!=='ngn')   el('ngnIn').value=(usdc*rate).toFixed(2);
+    if(from!=='wei')   el('weiIn').value=((usdc/ETH_USD)*1e18).toFixed(0);
+    el('ngnOut').innerHTML=`<button class="copy-btn" onclick="copyOut('ngnOut')">copy</button>`+
+      `<span class="ok">// converted at ₦${numFmt(rate)} / USDC</span>\n`+
+      `<span class="key">USDC     </span><span class="val">$${usdc.toFixed(4)}</span>\n`+
+      `<span class="key">NGN ₦    </span><span class="val">₦${numFmt((usdc*rate).toFixed(2))}</span>`;
+  } catch(_) {}
+  cvtBusy=false;
+}
+
+/* ─── STAKING ─── */
+function calcStk() {
+  const amt=parseFloat(el('stkAmt').value)||0, mo=parseInt(el('stkPrd').value)||12;
+  if(!amt) return;
+  const eff=Math.max(0,mo-6);
+  const yld=amt*0.05*(eff/12), total=amt+yld;
+  el('stkYield').textContent=fmtBig(yld)+' PROS';
+  el('stkTotal').textContent=fmtBig(total)+' PROS';
+  el('stkApy').textContent=eff>0?'5% APY':'0% lock';
+}
+
+/* ─── GAS CHART ─── */
+function drawGas() {
+  const svg=el('gasChart');
+  if(gasHist.length<2)return;
+  const W=300,H=80,P=8;
+  const mx=Math.max(...gasHist)*1.1||1, mn=Math.min(...gasHist)*0.9;
+  const pts=gasHist.map((v,i)=>{
+    const x=P+(i/(gasHist.length-1))*(W-P*2);
+    const y=H-P-((v-mn)/(mx-mn+0.001))*(H-P*2);
+    return `${x},${y}`;
+  });
+  const fp=`${P},${H-P} `+pts.join(' ')+` ${W-P},${H-P}`;
+  const last=pts[pts.length-1].split(',');
+  svg.innerHTML=`<defs><linearGradient id="gf" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2d6a4f" stop-opacity="0.3"/><stop offset="100%" stop-color="#2d6a4f" stop-opacity="0"/></linearGradient></defs><polygon points="${fp}" fill="url(#gf)"/><polyline points="${pts.join(' ')}" fill="none" stroke="#3a8463" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"/><circle cx="${last[0]}" cy="${last[1]}" r="3" fill="#d4831a" filter="drop-shadow(0 0 3px #d4831a)"/>`;
+  const latest=gasHist[gasHist.length-1];
+  el('gasChartFoot').textContent=`${gasHist.length} readings · latest ${latest.toFixed(3)} gwei`;
+  el('gasOut').innerHTML=`<span class="ok">// gas history</span>\n<span class="key">latest  </span><span class="val">${latest.toFixed(3)} gwei</span>\n<span class="key">min     </span><span class="val">${Math.min(...gasHist).toFixed(3)} gwei</span>\n<span class="key">max     </span><span class="val">${Math.max(...gasHist).toFixed(3)} gwei</span>`;
+}
+
+/* ─── BLOCKS ─── */
+async function fetchBlocks() {
+  const tbody=el('blocksBody');
+  tbody.innerHTML='<tr><td colspan="4" style="color:var(--ink3);font-style:italic;padding:10px;">Fetching…</td></tr>';
+  try {
+    const top=hexInt(await rpc(RPC.mainnet,'eth_blockNumber'));
+    const blocks=await Promise.all([top,top-1,top-2,top-3,top-4].map(n=>rpc(RPC.mainnet,'eth_getBlockByNumber',['0x'+n.toString(16),false])));
+    tbody.innerHTML=blocks.filter(Boolean).map(b=>{
+      const blk=numFmt(hexInt(b.number)), txs=b.transactions?.length||0;
+      const gas=numFmt(hexInt(b.gasUsed));
+      const t=new Date(hexInt(b.timestamp)*1000).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+      return `<tr><td class="td-blk">#${blk}</td><td class="td-tx">${txs}</td><td class="td-gs">${gas}</td><td class="td-tm">${t}</td></tr>`;
+    }).join('');
+  } catch(e){tbody.innerHTML=`<tr><td colspan="4" style="color:var(--em2);padding:10px;">Error: ${e.message}</td></tr>`;}
+}
+
+/* ─── LATENCY ─── */
+async function runLat() {
+  const out=el('latOut');
+  out.innerHTML='<span class="dim">// pinging…</span>';
+  el('latValM').textContent='…'; el('latValT').textContent='…';
+  try {
+    const ping=async url=>{const t=performance.now();await rpc(url,'eth_blockNumber');return Math.round(performance.now()-t);};
+    const [mMs,tMs]=await Promise.all([ping(RPC.mainnet),ping(RPC.testnet)]);
+    const mx=Math.max(mMs,tMs,800);
+    const applyBar=(bId,vId,ms)=>{
+      el(bId).style.width=Math.min(100,(ms/mx)*100)+'%';
+      el(bId).className='lat-fill'+(ms<300?'':ms<800?' mid':' slow');
+      const ve=el(vId); ve.textContent=ms+'ms';
+      ve.style.color=ms<300?'var(--ng)':ms<800?'var(--oc)':'var(--em)';
+    };
+    applyBar('latBarM','latValM',mMs); applyBar('latBarT','latValT',tMs);
+    out.innerHTML=`<span class="ok">// test complete</span>\n<span class="key">mainnet  </span><span class="val">${mMs}ms</span>\n<span class="key">testnet  </span><span class="val">${tMs}ms</span>`;
+  } catch(e){out.innerHTML=`<span class="err">// ${e.message}</span>`;}
+}
+
+/* ─── CCTP ─── */
+const CCTP=[
+  {chain:'Ethereum',domain:0},{chain:'Avalanche',domain:1},{chain:'OP Mainnet',domain:2},
+  {chain:'Arbitrum One',domain:3},{chain:'Noble',domain:4},{chain:'Solana',domain:5},
+  {chain:'Base',domain:6},{chain:'Polygon PoS',domain:7},{chain:'Sui',domain:8},
+  {chain:'Aptos',domain:9},{chain:'Unichain',domain:10},{chain:'Pharos Mainnet',domain:31,highlight:true}
+];
+
+el('cctpGrid').innerHTML=CCTP.map(({chain,domain,highlight})=>
+  `<div class="cctp-row ${highlight?'hl':''}">
+    <span class="cctp-ch">${highlight?'🦅 ':''}${chain}</span>
+    <span class="cctp-dm">Domain ${domain}${highlight?' ← Pharos':''}</span>
+  </div>`
+).join('');
+
+/* ─── BOOT ─── */
+refresh();
+setInterval(refresh,REFRESH_MS);
+</script>
+</body>
+</html>
